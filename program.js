@@ -1,51 +1,21 @@
-var http = require("http")
-var bl = require("bl")
-var async = require("async")
+var net = require("net")
 
 
-
-var results = {};
-
-async.parallel([
-	function (callback) {
-		http.get(process.argv[2], function(response) {
-			response.pipe(bl(function (err, data) {
-				if (err) return callback(err);
-				var str = data.toString();
-				results[process.argv[2]] = str;		
-				callback();
-			}));
-		});
-	},
-	function (callback) {
-		http.get(process.argv[3], function(response) {
-			response.pipe(bl(function (err, data) {
-				if (err) return callback(err);
-				var str = data.toString();
-				results[process.argv[3]] = str;
-				callback();
-			}));
-		});
-	},
-	function (callback) {
-		http.get(process.argv[4], function(response) {
-			response.pipe(bl(function (err, data) {
-				if (err) return callback(err);
-				var str = data.toString();
-				results[process.argv[4]] = str;
-				callback();
-			}));
-		});
-	}
-
-], function (err, results) {
-	if (err) return console.log(err);
-	console.log(results[process.argv[2]]);
-	console.log(results[process.argv[3]]);
-	console.log(results[process.argv[4]]);
-	
+var server = net.createServer(function(socket) {
+	var date = new Date();
+	console.log(date);
+	var year = date.getFullYear();
+	var month = ("0" + (date.getMonth() + 1)).slice(-2);
+	var day =  ("0" + date.getDate()).slice(-2);
+	var hour =  ("0" + date.getHours()).slice(-2);
+	var minute = ("0" + date.getMinutes()).slice(-2);
+	var dateString = year + "-" + month + "-" + day + " " + hour + ":" + minute + '\n';
+	console.log(dateString);
+	socket.write(dateString);
+	socket.end("");
 });
 
+server.listen(process.argv[2]);
 
 
 
